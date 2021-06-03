@@ -1,11 +1,13 @@
 ---
-  title: The Dining Problem
-  author: Will Kaufman and Ivy Yan
-  date: June 4, 2021
-  
-  bibliography: ../references.bib
-
-  geometry: margin=1in
+title: The Dining Problem
+author: Will Kaufman and Ivy Yan
+date: June 4, 2021
+bibliography: ../references.bib
+geometry: margin=1in
+# header-includes: |
+#   \makeatletter
+#   \def\fps@figure{ht}
+#   \makeatother
 ---
 
 <!-- # The Dining Problem
@@ -39,7 +41,7 @@ This formulation of the dining problem is exactly a multi-armed bandit problem.
 
 # Multi-armed bandits
 
-![From @slot_machine.](../graphics/slot-machine.jpg){width=50%}
+<!-- ![From @slot_machine.](../graphics/slot-machine.jpg){width=75%} -->
 
 
 
@@ -86,7 +88,7 @@ lambdas = np.array([4, 5, 6])
 wait_times = np.random.poisson(lam=lambdas, size=(1000, 70*3, lambdas.size))
 ``` -->
 
-The following plot shows the wait times at each dining venue for a single simulation. While there is a high degree of overlap in the wait times, it is possible to see that Foco has a lower mean wait time than Hop, which is lower than Collis.
+Figure \ref{fig:hist} shows the wait times at each dining venue for a single simulation. While there is a high degree of overlap in the wait times, it is possible to see that Foco has a lower mean wait time than Hop, which is lower than Collis.
 
 
 <!-- ```python
@@ -116,7 +118,7 @@ plt.show()
 
 
     
-![png](output_10_0.png)
+![Distribution of wait times for Foco, Hop, and Collis from a single 210-day simulation.\label{fig:hist}](output_10_0.png){width=75%}
     
 
 
@@ -135,6 +137,7 @@ One of the simplest strategies the student can follow is to always go to the din
     $$
 4. Increment the timestep $t \leftarrow t + 1$, stop when $t = T$
 
+By following this policy in each of the 1000 simulations, we can calculate the cumulative regret over the academic year (figure \ref{fig:regret_greedy_all}) and the mean regret across all 1000 simulations (figure \ref{fig:regret_greedy_mean})
 
 <!-- ```python
 chosen_wait_times = np.zeros((wait_times.shape[0], 70*3))
@@ -167,7 +170,7 @@ plt.show()
 
 
     
-![png](output_14_0.png)
+![Regret (extra wait time above the wait time from the optimal strategy) for each of the 1000 simulations using a greedy policy.\label{fig:regret_greedy_all}](output_14_0.png){width=75%}
     
 
 
@@ -182,7 +185,7 @@ plt.show()
 
 
     
-![png](output_15_0.png)
+![Mean regret for the 1000 simulations using a greedy policy.\label{fig:regret_greedy_mean}](output_15_0.png){width=75%}
     
 
 
@@ -192,13 +195,7 @@ regret.sum(axis=1).mean()
 ``` -->
 
 
-
-
-    59.275
-
-
-
-We can see that the mean regret (how much more time the student waits compared to the optimal venue) increases linearly over the course of the academic year. This is far from an effective policy: if the student _eventually_ learned which dining venue had the lowest mean wait time and starting going there, the regret would plateu. The lack of such an asymptote is indicative of the poor strategy employed in a purely greedy policy.
+We can see that the mean regret (how much more time the student waits compared to the optimal venue) increases linearly over the course of the year, reaching 59 minutes after 210 days. This is far from an effective policy: if the student _eventually_ learned which dining venue had the lowest mean wait time and starting going there, the regret would plateu. The lack of such an asymptote is indicative of the poor strategy employed in a purely greedy policy.
 
 # O-week exploration, then same old policy
 
@@ -211,6 +208,8 @@ Instead of employing a greedy policy right away, what if our student tries out d
     N_{t+1}(a) \leftarrow N_t(a) + 1, Q_{t+1}(a) \leftarrow Q_t(a)  + \frac{1}{N_{t+1}(a)} [r_{t} - Q_t(a)]
     $$
 2. For last $(1-\epsilon)T$ decisions, follow the greedy policy as described above
+
+See figure \ref{fig:regret_epsilon_first_mean} for the mean regret while following the $\epsilon$-first policy.
 
 
 <!-- ```python
@@ -247,7 +246,7 @@ plt.show()
 
 
     
-![png](output_21_0.png)
+<!-- ![png](output_21_0.png) -->
     
 
 
@@ -263,7 +262,7 @@ plt.show()
 
 
     
-![png](output_22_0.png)
+![Mean regret for the 1000 simulations using an $\epsilon$-first strategy.\label{fig:regret_epsilon_first_mean}](output_22_0.png){ width=75%}
     
 
 
@@ -274,14 +273,9 @@ regret.sum(axis=1).mean()
 
 
 
-
-    40.719
-
-
-
 $\epsilon$-first policy performs better than greedy policy, as illustrated by lower mean regret after 210 days (41 minutes compared to 59 minutes). The initial exploration improved the accuracy of the expected rewards in the Q function, which in turn increased the long-term expected rewards and decreased the wait times.
 
-However, the regret still increases linearly after the 14-day exploration period. As with greedy policy, this indicates that the optimal policy is occasionally _never_ found. Can we do even better?
+However, the regret still increases linearly after the 14-day exploration period. As with greedy policy, this indicates that the optimal policy is _never_ found in some of the simulations. Can we do even better?
 
 # Occasionally spontaneous policy
 
@@ -298,7 +292,7 @@ What if the student acts greedily _most_ of the time, but occasionally does some
     $$
 3. Increment the timestep $t \leftarrow t + 1$, stop when $t = T$
 
-This policy includes exploration throughout the decision-making process.
+This policy includes exploration throughout the decision-making process. See figure \ref{fig:regret_epsilon_greedy_mean} for the mean regret while following the $\epsilon$-greedy policy with different values for $\epsilon \in \{.02, .05, .1, .2\}$.
 
 
 <!-- ```python
@@ -342,7 +336,7 @@ plt.show()
 
 
     
-![png](output_29_0.png)
+<!-- ![png](output_29_0.png) -->
     
 
 
@@ -359,7 +353,7 @@ plt.show()
 
 
     
-![png](output_30_0.png)
+![Mean regret for the 1000 simulations using an $\epsilon$-greedy strategy.\label{fig:regret_epsilon_greedy_mean}](output_30_0.png){ width=75%}
     
 
 
@@ -370,11 +364,7 @@ regret.sum(axis=2).mean(axis=1)
 
 
 
-
-    array([52.981, 49.545, 48.104, 59.972])
-
-
-
+Depending on the "random decision" parameter $\epsilon$, the regret ranged from 48 minutes to 60 minutes.
 Using the $\epsilon$-greedy policy with $\epsilon=.05$ (the best value based on simulation results), the student's regret by the end of the year is 48 minutes, better than a purely greedy policy but not as effective as the $\epsilon$-first strategy. However, there is one important note to make. The regret curves above for $\epsilon$-greedy policy appear to have negative second derivatives. This indicates that--averaged over many simulations--the student continues to update her knowledge of the different dining venue wait times and eventually learns which venue has the shortest wait time. One can imagine that for a longer time horizon (two years instead of a single year) following an $\epsilon$-greedy policy would lead to lower regret.
 
 # The time-crunched math major policy
@@ -396,6 +386,7 @@ $$
 a_t \leftarrow {\arg \max}_a \left[ \text{UCB}_t(a) \right]
 $$
 
+See figure \ref{fig:regret_UCB_mean} for the mean regret while following the UCB policy.
 
 <!-- ```python
 c_array = np.array([.5, 1, 2, 4])
@@ -436,7 +427,7 @@ plt.show()
 
 
     
-![png](output_37_0.png)
+<!-- ![png](output_37_0.png) -->
     
 
 
@@ -453,7 +444,7 @@ plt.show()
 
 
     
-![png](output_38_0.png)
+![Mean regret for the 1000 simulations using a UCB policy.\label{fig:regret_UCB_mean}](output_38_0.png){width=75%}
     
 
 
@@ -465,11 +456,11 @@ extra_time.sum(axis=2).mean(axis=1)
 
 
 
-    array([ 50.968,  39.644,  30.704,  55.101, 105.976])
+<!-- array([ 50.968,  39.644,  30.704,  55.101, 105.976]) -->
 
 
-
-The UCB policy with an exploration factor of $c=2$ performed the best out of all strategies: the total regret after a year is 31 minutes, compared to 41 minutes using $\epsilon$-first and 48 minutes using $\epsilon$-greedy. And each regret curve appears to asymptote to a constant regret value, though at different time scales.
+As with $\epsilon$-greedy, the choice of exploration factor $c$ influenced the mean regret by the end of the year, ranging from 32 minutes to 55 minutes.
+The UCB policy with an exploration factor of $c=2$ performed the best out of all strategies: the total regret after a year is 32 minutes, compared to 41 minutes using $\epsilon$-first and 48 minutes using $\epsilon$-greedy. And each regret curve appears to asymptote to a constant regret value, though at different time scales.
 
 # Comparison of policies
 
@@ -485,6 +476,6 @@ First, the wait time distributions at each venue may not be stationary. For exam
 
 Second, the wait times may depend on factors other than the dining venue. For example, it may be that the Hop has short wait times during weekdays, but very long wait times during weekends. For multi-armed bandits, this is known as a "contextual bandit," where the distribution that is sampled from depends on _both_ the action chosen _and_ an additional state variable.
 
-Finally, and perhaps most importantly, the student's utility function may not be restricted to how long she waits for food. She may also care about which food she eats! Further, she may want to get dinner with a friend (thus picking venues that can facilitate social time), or may want to save money and go to the less expensive venues. Each of these are common factors that people consider when deciding to eat, and it would be fascinating to model behavior by including these in a generalized utility function.
+Finally, and perhaps most importantly, the student's utility function may not be restricted to how long she waits for food. She may also care about the food she eats! Further, she may want to get dinner with a friend (thus picking venues that can facilitate social time), or may want to save money and go to the less expensive venues. Each of these are common factors that people consider when deciding to eat, and it would be fascinating to model behavior by including these in a generalized utility function.
 
 # References
